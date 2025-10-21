@@ -1,42 +1,118 @@
-#root {
-  max-width: 1280px;
-  margin: 0 auto;
-  padding: 2rem;
+/* ---------- Layout base ---------- */
+html, body, #root {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background-color: #000; /* fundo preto total */
+  font-family: "Inter", sans-serif;
+}
+
+/* ---------- Estrutura principal ---------- */
+.App {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  align-items: center;
+  height: 100%;
+  width: 100%;
+  background-color: #000;
+  color: #fff;
+  padding: 20px;
+  box-sizing: border-box;
+}
+
+/* ---------- Título ---------- */
+h1 {
+  color: #4da6ff;
+  font-size: 2rem;
   text-align: center;
+  margin-bottom: 10px;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #646cffaa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #61dafbaa);
-}
-
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* ---------- Janela do chat ---------- */
+.chat {
+  width: 100%;
+  max-width: 800px;
+  flex-grow: 1;
+  background: #111;
+  border: 1px solid #222;
+  border-radius: 12px;
+  padding: 20px;
+  overflow-y: auto;
+  box-shadow: 0 0 20px rgba(77, 166, 255, 0.2);
+  display: flex;
+  flex-direction: column;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
+/* ---------- Mensagens ---------- */
+.mensagem {
+  padding: 10px 14px;
+  border-radius: 10px;
+  margin: 6px 0;
+  max-width: 75%;
+  line-height: 1.4;
+  font-size: 1rem;
 }
 
-.card {
-  padding: 2em;
+.mensagem.user {
+  background: #4da6ff;     /* azul Toyota */
+  color: #fff;
+  align-self: flex-end;
 }
 
-.read-the-docs {
-  color: #888;
+.mensagem.bot {
+  background: #2e2e2e;     /* cinza escuro */
+  color: #eaeaea;
+  align-self: flex-start;
+}
+
+/* ---------- Campo de entrada ---------- */
+.input-area {
+  width: 100%;
+  max-width: 800px;
+  display: flex;
+  margin-top: 20px;
+}
+
+input {
+  flex: 1;
+  background: #1a1a1a;
+  border: 1px solid #333;
+  color: #fff;
+  padding: 12px;
+  border-radius: 8px;
+  outline: none;
+  font-size: 1rem;
+}
+
+input::placeholder {
+  color: #aaa;
+}
+
+button {
+  margin-left: 10px;
+  background: #4da6ff;
+  color: #fff;
+  border: none;
+  border-radius: 8px;
+  padding: 12px 20px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+button:hover {
+  background: #1e90ff;
+}
+
+/* ---------- Scroll customizado ---------- */
+.chat::-webkit-scrollbar {
+  width: 8px;
+}
+.chat::-webkit-scrollbar-thumb {
+  background: #333;
+  border-radius: 4px;
+}
+.chat::-webkit-scrollbar-thumb:hover {
+  background: #555;
 }

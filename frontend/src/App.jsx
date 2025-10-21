@@ -1,35 +1,95 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import React, { useState } from "react";
+import "./App.css";
+import { API_BASE } from "./config";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [mensagem, setMensagem] = useState("");
+  const [respostas, setRespostas] = useState([]);
+  const [carregando, setCarregando] = useState(false);
+
+  async function handleEnviar() {
+    if (mensagem.trim() === "") return;
+
+    setRespostas([...respostas, { texto: mensagem, autor: "user" }]);
+    setMensagem("");
+    setCarregando(true);
+
+    try {
+      const resp = await fetch(`${API_BASE}/api/recomendar`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ texto: mensagem }),
+      });
+
+      const data = await resp.json();
+
+      if (Array.isArray(data) && data.length > 0) {
+        const respostaFormatada = data
+          .map(
+            (v) =>
+              `🚗 ${v.modelo} — R$${v.preco_estimado.toLocaleString()} (score: ${
+                v.score ?? "–"
+              })`
+          )
+          .join("\n");
+
+        setRespostas((prev) => [
+          ...prev,
+          { texto: "Essas são as melhores opções:", autor: "bot" },
+          { texto: respostaFormatada, autor: "bot" },
+        ]);
+      } else {
+        setRespostas((prev) => [
+          ...prev,
+          { texto: "Certo! Anotei sua resposta 👍", autor: "bot" },
+        ]);
+      }
+    } catch (err) {
+      console.error(err);
+      setRespostas((prev) => [
+        ...prev,
+        { texto: "Erro ao conectar ao servidor 😕", autor: "bot" },
+      ]);
+    } finally {
+      setCarregando(false);
+    }
+  }
+
+  function handleKeyPress(e) {
+    if (e.key === "Enter") handleEnviar();
+  }
 
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
+    <div className="App">
+      <h1>Assistente Toyota 🤖</h1>
+
+      <div className="chat">
+        {respostas.map((msg, i) => (
+          <div
+            key={i}
+            className={`mensagem ${msg.autor === "user" ? "user" : "bot"}`}
+          >
+            {msg.texto.split("\n").map((linha, j) => (
+              <div key={j}>{linha}</div>
+            ))}
+          </div>
+        ))}
+
+        {carregando && <div className="mensagem bot">⏳ Pensando...</div>}
       </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.jsx</code> and save to test HMR
-        </p>
+
+      <div className="input-area">
+        <input
+          type="text"
+          value={mensagem}
+          onChange={(e) => setMensagem(e.target.value)}
+          onKeyDown={handleKeyPress}
+          placeholder="Digite sua mensagem..."
+        />
+        <button onClick={handleEnviar}>Enviar</button>
       </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    </div>
+  );
 }
 
-export default App
+export default App;
