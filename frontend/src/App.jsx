@@ -15,7 +15,7 @@ function App() {
     setCarregando(true);
 
     try {
-      const resp = await fetch(`${API_BASE}/api/recomendar`, {
+      const resp = await fetch(`${API_BASE}/api/recomendacao`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ texto: mensagem }),
@@ -23,13 +23,27 @@ function App() {
 
       const data = await resp.json();
 
-      if (Array.isArray(data) && data.length > 0) {
+      // 🔹 Se o backend retornar { recomendacao: "texto..." }
+      if (data.recomendacao) {
+        // converte markdown básico para HTML
+        const textoHTML = data.recomendacao
+          .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>") // negrito
+          .replace(/\n/g, "<br />"); // quebra de linha
+
+        setRespostas((prev) => [
+          ...prev,
+          { texto: textoHTML, autor: "bot", html: true },
+        ]);
+      }
+
+      // 🔹 Se retornar uma lista de objetos (modo antigo)
+      else if (Array.isArray(data) && data.length > 0) {
         const respostaFormatada = data
           .map(
             (v) =>
-              `🚗 ${v.modelo} — R$${v.preco_estimado.toLocaleString()} (score: ${
-                v.score ?? "–"
-              })`
+              `🚗 ${v.modelo} — R$${Number(v.preco_estimado).toLocaleString(
+                "pt-BR"
+              )} (score: ${v.score ?? "–"})`
           )
           .join("\n");
 
@@ -38,7 +52,10 @@ function App() {
           { texto: "Essas são as melhores opções:", autor: "bot" },
           { texto: respostaFormatada, autor: "bot" },
         ]);
-      } else {
+      }
+
+      // 🔹 Caso não venha nada
+      else {
         setRespostas((prev) => [
           ...prev,
           { texto: "Certo! Anotei sua resposta 👍", autor: "bot" },
@@ -69,9 +86,12 @@ function App() {
             key={i}
             className={`mensagem ${msg.autor === "user" ? "user" : "bot"}`}
           >
-            {msg.texto.split("\n").map((linha, j) => (
-              <div key={j}>{linha}</div>
-            ))}
+            {/* se a resposta veio com html=true, renderiza HTML seguro */}
+            {msg.html ? (
+              <div dangerouslySetInnerHTML={{ __html: msg.texto }} />
+            ) : (
+              msg.texto.split("\n").map((linha, j) => <div key={j}>{linha}</div>)
+            )}
           </div>
         ))}
 
