@@ -1,4 +1,4 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, useLayoutEffect } from "react";
 import "./Chat.css";
 import { API_BASE } from "./config";
 import { useNavigate } from "react-router-dom";
@@ -7,9 +7,39 @@ function Chat() {
   const [mensagem, setMensagem] = useState("");
   const [respostas, setRespostas] = useState([]);
   const [carregando, setCarregando] = useState(false);
+
   const chatAreaRef = useRef(null);
+  const bottomRef = useRef(null);
+  const isAtBottomRef = useRef(true); // controla se devemos auto-rolar
+
   const navigate = useNavigate();
 
+  // -------- Scroll helpers --------
+  const scrollToBottom = (smooth = true) => {
+    if (!bottomRef.current) return;
+    bottomRef.current.scrollIntoView({ behavior: smooth ? "smooth" : "auto" });
+  };
+
+  const handleScroll = () => {
+    const el = chatAreaRef.current;
+    if (!el) return;
+    // distância até o fundo
+    const dist = el.scrollHeight - el.scrollTop - el.clientHeight;
+    // considera "no fundo" quando a distância é pequena
+    isAtBottomRef.current = dist < 12;
+  };
+
+  // rola para o fundo no primeiro render
+  useLayoutEffect(() => {
+    scrollToBottom(false);
+  }, []);
+
+  // rola somente quando chega mensagem nova E usuário está no fundo
+  useEffect(() => {
+    if (isAtBottomRef.current) scrollToBottom(true);
+  }, [respostas, carregando]);
+
+  // -------- Envio --------
   async function handleEnviar() {
     if (mensagem.trim() === "") return;
 
@@ -23,13 +53,13 @@ function Chat() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ texto: mensagem }),
       });
-
       const data = await resp.json();
 
       if (data.recomendacao) {
         const textoHTML = data.recomendacao
           .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
           .replace(/\n/g, "<br />");
+
         setRespostas((prev) => [
           ...prev,
           { texto: textoHTML, autor: "bot", html: true },
@@ -70,14 +100,6 @@ function Chat() {
     if (e.key === "Enter") handleEnviar();
   }
 
-  useEffect(() => {
-    const el = chatAreaRef.current;
-    if (!el) return;
-    const dist = el.scrollHeight - el.scrollTop - el.clientHeight;
-    const nearBottom = dist < 80;
-    if (nearBottom) el.scrollTop = el.scrollHeight;
-  }, [respostas, carregando]);
-
   return (
     <div className="page gradient-bg">
       <div className="chat-card">
@@ -90,13 +112,13 @@ function Chat() {
             <p>Seu consultor virtual de veículos</p>
           </div>
 
-          {/* 🔹 Botão para funcionários */}
           <button className="admin-btn" onClick={() => navigate("/login")}>
             Área do Funcionário
           </button>
         </header>
 
-        <main className="chat-area" ref={chatAreaRef}>
+        {/* Área com scroll livre; onScroll atualiza isAtBottomRef */}
+        <main className="chat-area" ref={chatAreaRef} onScroll={handleScroll}>
           {respostas.map((msg, i) => (
             <div
               key={i}
@@ -105,13 +127,15 @@ function Chat() {
               {msg.html ? (
                 <div dangerouslySetInnerHTML={{ __html: msg.texto }} />
               ) : (
-                msg.texto
-                  .split("\n")
-                  .map((linha, j) => <div key={j}>{linha}</div>)
+                msg.texto.split("\n").map((linha, j) => <div key={j}>{linha}</div>)
               )}
             </div>
           ))}
+
           {carregando && <div className="msg bot">⏳ Pensando...</div>}
+
+          {/* Âncora invisível para rolar até o fim com precisão */}
+          <div ref={bottomRef} />
         </main>
 
         <footer className="input-box">
