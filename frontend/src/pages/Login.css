@@ -1,0 +1,160 @@
+/* -------------------------------------------------------
+   Login SaaS — corrigido e unificado
+   ------------------------------------------------------- */
+   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600&display=swap');
+
+   :root {
+     --bg-1: #0f1020;
+     --bg-2: #0a0b14;
+     --white: #ffffff;
+     --text-1: #0f1221;
+     --muted: #6b7290;
+     --brand-start: #6a5cff;
+     --brand-end: #2fb3ff;
+     --card-bg: #ffffff;
+     --card-border: #eef0f6;
+     --card-shadow: 0 20px 60px rgba(23, 25, 35, 0.10);
+     --radius-lg: 20px;
+     --radius-md: 12px;
+     --radius-sm: 10px;
+   }
+   
+   /* ---------- Fundo ---------- */
+   html, body, #root {
+     height: 100%;
+     width: 100%;
+     margin: 0;
+     padding: 0;
+   }
+   
+   body {
+     font-family: "Inter", "Poppins", system-ui, sans-serif;
+     background:
+       radial-gradient(1200px 800px at 20% 0%, rgba(106,92,255,0.25), transparent 60%),
+       radial-gradient(1000px 700px at 85% 15%, rgba(47,179,255,0.25), transparent 60%),
+       linear-gradient(180deg, var(--bg-1) 0%, var(--bg-2) 100%);
+     display: flex;
+     justify-content: center;
+     align-items: center;
+   }
+   
+   /* ---------- Card ---------- */
+   .login-page {
+     display: flex;
+     justify-content: center;
+     align-items: center;
+     width: 100%;
+     height: 100%;
+   }
+   
+   .login-card {
+     background: var(--card-bg);
+     border: 1px solid var(--card-border);
+     border-radius: var(--radius-lg);
+     box-shadow: var(--card-shadow);
+     width: min(92vw, 420px);
+     padding: 40px 36px;
+     text-align: center;
+     animation: fadeIn .3s ease;
+   }
+   
+   .login-card h1 {
+     font-size: clamp(22px, 2.5vw, 30px);
+     font-weight: 800;
+     color: #121429;
+     margin-bottom: 8px;
+   }
+   
+   .login-card p {
+     color: var(--muted);
+     font-size: 15px;
+     margin-bottom: 26px;
+   }
+   
+   /* ---------- Form ---------- */
+   .login-form {
+     display: flex;
+     flex-direction: column;
+     gap: 14px;
+     margin-bottom: 20px;
+   }
+   
+   .login-form input {
+     width: 100%;
+     padding: 12px 14px;
+     border-radius: var(--radius-sm);
+     border: 1px solid #e6e9f4;
+     font-size: 1rem;
+     background: #fafbff;
+     outline: none;
+     color: var(--text-1);
+     transition: all 0.15s ease;
+   }
+   
+   .login-form input:focus {
+     border-color: #cfd7ff;
+     background: #fff;
+     box-shadow: 0 0 0 4px rgba(106,92,255,0.12);
+   }
+   
+   /* ---------- Botão ---------- */
+   .login-form button {
+     background: linear-gradient(135deg, var(--brand-start), var(--brand-end));
+     color: var(--white);
+     font-weight: 600;
+     border: none;
+     border-radius: var(--radius-sm);
+     padding: 12px;
+     font-size: 1rem;
+     cursor: pointer;
+     box-shadow: 0 10px 22px rgba(71, 97, 255, 0.3);
+     transition: all 0.15s ease;
+   }
+   
+   .login-form button:hover:not(:disabled) {
+     transform: translateY(-1px);
+     box-shadow: 0 14px 28px rgba(71, 97, 255, 0.35);
+   }
+   
+   .login-form button:disabled {
+     opacity: 0.7;
+     cursor: default;
+   }
+   
+   /* ---------- Erro ---------- */
+   .erro {
+     color: #e13d3d;
+     font-size: 0.9rem;
+     margin-top: 6px;
+   }
+   
+   /* ---------- Voltar ---------- */
+   .back-btn {
+     background: transparent;
+     border: 2px solid #cfd3f9;
+     color: #3a3c5b;
+     font-weight: 600;
+     padding: 10px 22px;
+     border-radius: var(--radius-md);
+     cursor: pointer;
+     transition: all .2s ease;
+   }
+   .back-btn:hover {
+     background: rgba(106,92,255,0.08);
+     border-color: #a7afff;
+   }
+   
+   /* ---------- Animação ---------- */
+   @keyframes fadeIn {
+     from { opacity: 0; transform: translateY(6px); }
+     to { opacity: 1; transform: translateY(0); }
+   }
+   
+   /* ---------- Responsivo ---------- */
+   @media (max-width: 480px) {
+     .login-card {
+       width: 90%;
+       padding: 32px 24px;
+     }
+   }
+   
