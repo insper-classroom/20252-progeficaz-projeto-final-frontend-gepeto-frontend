@@ -23,12 +23,12 @@ function App() {
 
       const data = await resp.json();
 
-      // 🔹 Se o backend retornar { recomendacao: "texto..." }
+      
       if (data.recomendacao) {
-        // converte markdown básico para HTML
+      
         const textoHTML = data.recomendacao
-          .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>") // negrito
-          .replace(/\n/g, "<br />"); // quebra de linha
+          .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>") 
+          .replace(/\n/g, "<br />"); 
 
         setRespostas((prev) => [
           ...prev,
@@ -36,7 +36,7 @@ function App() {
         ]);
       }
 
-      // 🔹 Se retornar uma lista de objetos (modo antigo)
+  
       else if (Array.isArray(data) && data.length > 0) {
         const respostaFormatada = data
           .map(
@@ -54,7 +54,7 @@ function App() {
         ]);
       }
 
-      // 🔹 Caso não venha nada
+    
       else {
         setRespostas((prev) => [
           ...prev,
@@ -86,7 +86,7 @@ function App() {
             key={i}
             className={`mensagem ${msg.autor === "user" ? "user" : "bot"}`}
           >
-            {/* se a resposta veio com html=true, renderiza HTML seguro */}
+            {}
             {msg.html ? (
               <div dangerouslySetInnerHTML={{ __html: msg.texto }} />
             ) : (
