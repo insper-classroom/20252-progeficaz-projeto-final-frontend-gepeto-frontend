@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import "./App.css";
 import { API_BASE } from "./config";
 
@@ -6,11 +6,12 @@ function App() {
   const [mensagem, setMensagem] = useState("");
   const [respostas, setRespostas] = useState([]);
   const [carregando, setCarregando] = useState(false);
+  const chatAreaRef = useRef(null);
 
   async function handleEnviar() {
     if (mensagem.trim() === "") return;
 
-    setRespostas([...respostas, { texto: mensagem, autor: "user" }]);
+    setRespostas((prev) => [...prev, { texto: mensagem, autor: "user" }]);
     setMensagem("");
     setCarregando(true);
 
@@ -23,21 +24,15 @@ function App() {
 
       const data = await resp.json();
 
-      // 🔹 Se o backend retornar { recomendacao: "texto..." }
       if (data.recomendacao) {
-        // converte markdown básico para HTML
         const textoHTML = data.recomendacao
-          .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>") // negrito
-          .replace(/\n/g, "<br />"); // quebra de linha
-
+          .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
+          .replace(/\n/g, "<br />");
         setRespostas((prev) => [
           ...prev,
           { texto: textoHTML, autor: "bot", html: true },
         ]);
-      }
-
-      // 🔹 Se retornar uma lista de objetos (modo antigo)
-      else if (Array.isArray(data) && data.length > 0) {
+      } else if (Array.isArray(data) && data.length > 0) {
         const respostaFormatada = data
           .map(
             (v) =>
@@ -52,10 +47,7 @@ function App() {
           { texto: "Essas são as melhores opções:", autor: "bot" },
           { texto: respostaFormatada, autor: "bot" },
         ]);
-      }
-
-      // 🔹 Caso não venha nada
-      else {
+      } else {
         setRespostas((prev) => [
           ...prev,
           { texto: "Certo! Anotei sua resposta 👍", autor: "bot" },
@@ -76,37 +68,55 @@ function App() {
     if (e.key === "Enter") handleEnviar();
   }
 
+  // 🔥 scroll automático só se estiver perto do final
+  useEffect(() => {
+    const el = chatAreaRef.current;
+    if (!el) return;
+
+    const dist = el.scrollHeight - el.scrollTop - el.clientHeight;
+    const nearBottom = dist < 80;
+    if (nearBottom) el.scrollTop = el.scrollHeight;
+  }, [respostas, carregando]);
+
   return (
-    <div className="App">
-      <h1>Assistente Toyota 🤖</h1>
-
-      <div className="chat">
-        {respostas.map((msg, i) => (
-          <div
-            key={i}
-            className={`mensagem ${msg.autor === "user" ? "user" : "bot"}`}
-          >
-            {/* se a resposta veio com html=true, renderiza HTML seguro */}
-            {msg.html ? (
-              <div dangerouslySetInnerHTML={{ __html: msg.texto }} />
-            ) : (
-              msg.texto.split("\n").map((linha, j) => <div key={j}>{linha}</div>)
-            )}
+    <div className="page gradient-bg">
+      <div className="chat-card">
+        <header className="chat-header">
+          <div className="hero">
+            <span className="badge">Beta</span>
+            <h1>
+              Assistente <span className="highlighted">Toyota</span>
+            </h1>
+            <p>Seu consultor virtual de veículos</p>
           </div>
-        ))}
+        </header>
 
-        {carregando && <div className="mensagem bot">⏳ Pensando...</div>}
-      </div>
+        <main className="chat-area" ref={chatAreaRef}>
+          {respostas.map((msg, i) => (
+            <div
+              key={i}
+              className={`msg ${msg.autor === "user" ? "user" : "bot"}`}
+            >
+              {msg.html ? (
+                <div dangerouslySetInnerHTML={{ __html: msg.texto }} />
+              ) : (
+                msg.texto.split("\n").map((linha, j) => <div key={j}>{linha}</div>)
+              )}
+            </div>
+          ))}
+          {carregando && <div className="msg bot">⏳ Pensando...</div>}
+        </main>
 
-      <div className="input-area">
-        <input
-          type="text"
-          value={mensagem}
-          onChange={(e) => setMensagem(e.target.value)}
-          onKeyDown={handleKeyPress}
-          placeholder="Digite sua mensagem..."
-        />
-        <button onClick={handleEnviar}>Enviar</button>
+        <footer className="input-box">
+          <input
+            type="text"
+            value={mensagem}
+            onChange={(e) => setMensagem(e.target.value)}
+            onKeyDown={handleKeyPress}
+            placeholder="Digite sua mensagem..."
+          />
+          <button onClick={handleEnviar}>Enviar</button>
+        </footer>
       </div>
     </div>
   );
