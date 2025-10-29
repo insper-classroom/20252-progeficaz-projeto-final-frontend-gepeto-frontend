@@ -1,0 +1,142 @@
+
+
+   @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Poppins:wght@500;600&display=swap');
+
+   :root {
+     --bg-1: #0f1020;
+     --bg-2: #0a0b14;
+     --white: #ffffff;
+     --muted: #6b7290;
+     --brand-start: #6a5cff;
+     --brand-end: #2fb3ff;
+     --card-bg: #ffffff;
+     --card-border: #eef0f6;
+     --radius-lg: 20px;
+     --radius-md: 12px;
+     --card-shadow: 0 20px 60px rgba(23, 25, 35, 0.10);
+   }
+   
+   /* ---------- Card principal ---------- */
+   .dashboard-card {
+     display: flex;
+     flex-direction: column;
+     width: min(92vw, 880px);
+     max-width: 880px;
+     height: clamp(560px, 78vh, 860px);
+     background: var(--card-bg);
+     border: 1px solid var(--card-border);
+     border-radius: var(--radius-lg);
+     box-shadow: var(--card-shadow);
+     overflow: hidden;
+     padding: 24px 28px;
+     min-height: 0;
+     color: var(--text-1);
+   }
+   
+   /* ---------- Header ---------- */
+   .dashboard-header {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     padding-bottom: 14px;
+     border-bottom: 1px solid var(--card-border);
+   }
+   
+   .dashboard-header h1 {
+     font-family: "Poppins", sans-serif;
+     font-weight: 600;
+     color: #121429;
+     font-size: 1.6rem;
+   }
+   
+   .add-btn {
+     background: linear-gradient(135deg, var(--brand-start), var(--brand-end));
+     border: none;
+     color: #fff;
+     font-size: 1.6rem;
+     border-radius: 50%;
+     width: 44px;
+     height: 44px;
+     cursor: pointer;
+     transition: 0.2s;
+     box-shadow: 0 8px 24px rgba(71, 97, 255, 0.25);
+   }
+   .add-btn:hover {
+     transform: translateY(-2px);
+   }
+   
+   /* ---------- Lista ---------- */
+   .dashboard-list {
+     flex: 1 1 auto;
+     overflow-y: auto;
+     margin-top: 16px;
+     display: flex;
+     flex-direction: column;
+     gap: 12px;
+     scroll-behavior: smooth;
+     padding-right: 6px;
+   }
+   
+   .dashboard-list::-webkit-scrollbar {
+     width: 10px;
+   }
+   .dashboard-list::-webkit-scrollbar-thumb {
+     background: #d8d9e3;
+     border-radius: 6px;
+     border: 2px solid #f7f7fb;
+   }
+   .dashboard-list::-webkit-scrollbar-thumb:hover {
+     background: #b8b9d1;
+   }
+   
+   /* ---------- Cada veículo ---------- */
+   .vehicle-row {
+     display: flex;
+     justify-content: space-between;
+     align-items: center;
+     background: #fafbff;
+     border: 1px solid #eef0f6;
+     border-radius: var(--radius-md);
+     padding: 16px 18px;
+     transition: 0.2s;
+   }
+   .vehicle-row:hover {
+     background: #f4f6fb;
+     transform: translateY(-1px);
+   }
+   
+   .vehicle-row .info h3 {
+     font-weight: 600;
+     font-size: 1.1rem;
+     color: #0f1221;
+     margin-bottom: 4px;
+   }
+   .vehicle-row .info p {
+     color: var(--muted);
+     font-size: 0.92rem;
+   }
+   
+   /* ---------- Ações ---------- */
+   .actions button {
+     background: none;
+     border: none;
+     font-size: 1.3rem;
+     cursor: pointer;
+     margin-left: 8px;
+     transition: 0.2s;
+   }
+   .actions .edit:hover {
+     color: var(--brand-end);
+   }
+   .actions .delete:hover {
+     color: #ff4b4b;
+   }
+   
+   /* ---------- Texto vazio ---------- */
+   .empty {
+     color: var(--muted);
+     text-align: center;
+     margin-top: 24px;
+   }
+   
+   
