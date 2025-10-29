@@ -11,7 +11,6 @@ function Chat() {
   const chatAreaRef = useRef(null);
   const bottomRef = useRef(null);
   const isAtBottomRef = useRef(true); // controla se devemos auto-rolar
-
   const navigate = useNavigate();
 
   // -------- Scroll helpers --------
@@ -23,9 +22,7 @@ function Chat() {
   const handleScroll = () => {
     const el = chatAreaRef.current;
     if (!el) return;
-    // distância até o fundo
     const dist = el.scrollHeight - el.scrollTop - el.clientHeight;
-    // considera "no fundo" quando a distância é pequena
     isAtBottomRef.current = dist < 12;
   };
 
@@ -34,7 +31,22 @@ function Chat() {
     scrollToBottom(false);
   }, []);
 
-  // rola somente quando chega mensagem nova E usuário está no fundo
+  // mensagem inicial automática
+  useEffect(() => {
+    const mensagemInicial = {
+      texto:
+        " Olá, tudo bem?\n\n" +
+        "Sou o assistente virtual da concessionária Toyota! 🚗\n\n" +
+        "Me conte o que você está buscando pode ser algo como:\n" +
+        "• Quero um carro econômico\n" +
+        "• Procuro um SUV 0km\n" +
+        "• Quero um modelo esportivo potente\n\n" +
+        "Assim posso te recomendar os melhores veículos disponíveis 😉",
+      autor: "bot",
+    };
+    setRespostas([mensagemInicial]);
+  }, []);
+
   useEffect(() => {
     if (isAtBottomRef.current) scrollToBottom(true);
   }, [respostas, carregando]);
@@ -134,7 +146,6 @@ function Chat() {
 
           {carregando && <div className="msg bot">⏳ Pensando...</div>}
 
-          {/* Âncora invisível para rolar até o fim com precisão */}
           <div ref={bottomRef} />
         </main>
 
