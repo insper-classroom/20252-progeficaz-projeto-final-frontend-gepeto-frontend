@@ -134,12 +134,20 @@ export default function CadastroVeiculo() {
     const body = montarPayload();
 
     try {
+      const token = localStorage.getItem("token");
       const resp = await fetch(`${API_BASE}/api/veiculos`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: token ? `Bearer ${token}` : "",
+        },
         body: JSON.stringify(body),
       });
 
+      if (resp.status === 401) {
+        navigate("/login");
+        return;
+      }
       if (!resp.ok) {
         const txt = await resp.text();
         throw new Error(txt || "Erro ao cadastrar");

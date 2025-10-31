@@ -26,7 +26,16 @@ export default function EditarVeiculo() {
   useEffect(() => {
     async function fetchVeiculo() {
       try {
-        const resp = await fetch(`${API_BASE}/api/veiculos/${id}`);
+        const token = localStorage.getItem("token");
+        const resp = await fetch(`${API_BASE}/api/veiculos/${id}`, {
+          headers: {
+            Authorization: token ? `Bearer ${token}` : "",
+          },
+        });
+        if (resp.status === 401) {
+          navigate("/login");
+          return;
+        }
         if (!resp.ok) throw new Error("Erro ao buscar veículo");
         const data = await resp.json();
 
@@ -108,12 +117,17 @@ export default function EditarVeiculo() {
     try {
       const body = montarPayload();
 
+      const token = localStorage.getItem("token");
       const resp = await fetch(`${API_BASE}/api/veiculos/${id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", Authorization: token ? `Bearer ${token}` : "" },
         body: JSON.stringify(body),
       });
 
+      if (resp.status === 401) {
+        navigate("/login");
+        return;
+      }
       if (!resp.ok) throw new Error("Erro ao atualizar veículo");
 
       alert("Veículo atualizado com sucesso!");

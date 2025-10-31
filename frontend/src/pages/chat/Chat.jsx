@@ -116,6 +116,18 @@ function Chat() {
     <div className="page gradient-bg">
       <div className="chat-card">
         <header className="chat-header">
+          <div className="header-actions">
+            <div />
+            <button className="admin-cta" onClick={() => navigate("/login")}
+              aria-label="Ir para área do funcionário">
+              <span className="admin-cta__icon">🛡️</span>
+              <span className="admin-cta__texts">
+                <span className="admin-cta__title">Área do funcionário</span>
+                <span className="admin-cta__subtitle">Acessar dashboard</span>
+              </span>
+              <span className="admin-cta__arrow">→</span>
+            </button>
+          </div>
           <div className="hero">
             <span className="badge">Beta</span>
             <h1>
@@ -123,10 +135,6 @@ function Chat() {
             </h1>
             <p>Seu consultor virtual de veículos</p>
           </div>
-
-          <button className="admin-btn" onClick={() => navigate("/login")}>
-            Área do Funcionário
-          </button>
         </header>
 
         {/* Área com scroll livre; onScroll atualiza isAtBottomRef */}

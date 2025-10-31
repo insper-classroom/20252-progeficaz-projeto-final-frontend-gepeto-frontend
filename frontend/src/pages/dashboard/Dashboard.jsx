@@ -8,16 +8,42 @@ function Dashboard() {
   const navigate = useNavigate();
 
   useEffect(() => {
-    fetch(`${API_BASE}/api/veiculos`)
-      .then((res) => res.json())
+    const token = localStorage.getItem("token");
+    fetch(`${API_BASE}/api/veiculos`, {
+      headers: {
+        Authorization: token ? `Bearer ${token}` : "",
+      },
+    })
+      .then(async (res) => {
+        if (res.status === 401) {
+          navigate("/login");
+          return [];
+        }
+        return res.json();
+      })
       .then((data) => setVeiculos(data))
       .catch((err) => console.error("Erro ao buscar veículos:", err));
-  }, []);
+  }, [navigate]);
 
   const handleDelete = async (id) => {
     if (!window.confirm("Tem certeza que deseja deletar este veículo?")) return;
-    await fetch(`${API_BASE}/api/veiculos/${id}`, { method: "DELETE" });
+    const token = localStorage.getItem("token");
+    const resp = await fetch(`${API_BASE}/api/veiculos/${id}`, {
+      method: "DELETE",
+      headers: {
+        Authorization: token ? `Bearer ${token}` : "",
+      },
+    });
+    if (resp.status === 401) {
+      navigate("/login");
+      return;
+    }
     setVeiculos((prev) => prev.filter((v) => v._id !== id));
+  };
+
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    navigate("/login");
   };
 
   const handleEdit = (id) => navigate(`/dashboard/editar/${id}`);
@@ -26,7 +52,7 @@ function Dashboard() {
     <div className="page gradient-bg">
       <div className="chat-card dashboard-card">
         <div className="dashboard-header">
-          <button className="back-btn" onClick={() => navigate("/")}>⬅️</button>
+          <button className="back-btn" onClick={handleLogout}>🚪 Sair</button>
           <h1>🚗 Veículos Cadastrados</h1>
         </div>
 
