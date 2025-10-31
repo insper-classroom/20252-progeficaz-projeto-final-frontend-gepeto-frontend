@@ -1,0 +1,134 @@
+/* Mantém compatibilidade com seu tema (gradient, card, etc.) */
+.page.gradient-bg {
+    display: flex;
+    min-height: 100vh;
+    padding: 24px;
+    box-sizing: border-box;
+  }
+  
+  .chat-card.centered {
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+    background: var(--card-bg, #ffffff);
+    color: var(--text-1, #0f1221);
+    border: 1px solid var(--card-border, #eef0f6);
+    border-radius: var(--radius-lg, 20px);
+    box-shadow: var(--card-shadow, 0 18px 48px rgba(23,25,35,0.10));
+    padding: 28px;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;           /* importante p/ scroll interno */
+    max-height: calc(100vh - 48px);
+  }
+  
+  .titulo {
+    font-family: "Poppins", system-ui, sans-serif;
+    font-size: 22px;
+    margin-bottom: 4px;
+  }
+  
+  .subtitulo {
+    color: var(--muted, #6b7290);
+    margin-bottom: 16px;
+  }
+  
+  /* Área rolável para formulários longos */
+  .form-grid {
+    overflow-y: auto;
+    padding-right: 6px; /* respiro pro scrollbar */
+  }
+  
+  .form-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 12px;
+    margin-bottom: 12px;
+  }
+  
+  @media (max-width: 980px) {
+    .form-row { grid-template-columns: repeat(2, 1fr); }
+  }
+  
+  @media (max-width: 640px) {
+    .form-row { grid-template-columns: 1fr; }
+  }
+  
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+  }
+  
+  .field label {
+    font-size: 12px;
+    color: var(--muted, #6b7290);
+  }
+  
+  .field input,
+  .field select,
+  .field textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border: 1px solid var(--card-border, #eef0f6);
+    border-radius: 12px;
+    background: #fff;
+    color: var(--text-1, #0f1221);
+    outline: none;
+  }
+  
+  .field textarea {
+    resize: vertical;
+  }
+  
+  .form-section {
+    margin: 10px 0 6px;
+  }
+  .form-section h2 {
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  
+  /* Ações */
+  .actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 14px;
+    position: sticky;
+    bottom: 0;               /* botões sempre visíveis */
+    background: #fff;
+    padding-top: 8px;
+  }
+  
+  .btn.primary {
+    background: transparent;
+    border: 2px solid var(--brand-start);
+    color: var(--brand-start);
+    transition: all 0.3s ease;
+  }
+  
+  .btn.primary:hover {
+    background: linear-gradient(90deg, var(--brand-start), var(--brand-end));
+    color: #fff;
+    box-shadow: 0 0 12px rgba(111, 126, 255, 0.6);
+  }
+  
+  
+  .btn.ghost {
+    border: 1px solid var(--card-border);
+    color: var(--text-1);
+    background: #fff;
+    transition: 0.2s;
+  }
+  
+  .btn.ghost:hover {
+    background: #f2f4ff;
+    border-color: var(--brand-start);
+    color: var(--brand-start);
+  }
+  
+  
+  /* Garante que nada 'trave' o scroll (override se necessário) */
+  html, body, #root, .page, .chat-card, .form-grid { min-height: 0; }
+  
