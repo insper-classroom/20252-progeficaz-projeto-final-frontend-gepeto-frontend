@@ -7,6 +7,7 @@ function Chat() {
   const [mensagem, setMensagem] = useState("");
   const [respostas, setRespostas] = useState([]);
   const [carregando, setCarregando] = useState(false);
+  const [sessionId, setSessionId] = useState(null);
 
   const chatAreaRef = useRef(null);
   const bottomRef = useRef(null);
@@ -31,20 +32,91 @@ function Chat() {
     scrollToBottom(false);
   }, []);
 
-  // mensagem inicial automática
+  // Inicializar session_id e carregar conversa existente
   useEffect(() => {
-    const mensagemInicial = {
-      texto:
-        " Olá, tudo bem?\n\n" +
-        "Sou o assistente virtual da concessionária Toyota! 🚗\n\n" +
-        "Me conte o que você está buscando pode ser algo como:\n" +
-        "• Quero um carro econômico\n" +
-        "• Procuro um SUV 0km\n" +
-        "• Quero um modelo esportivo potente\n\n" +
-        "Assim posso te recomendar os melhores veículos disponíveis 😉",
-      autor: "bot",
-    };
-    setRespostas([mensagemInicial]);
+    async function inicializarConversa() {
+      try {
+        // Tentar recuperar session_id do localStorage
+        let sessionIdLocal = localStorage.getItem("chat_session_id");
+        
+        if (sessionIdLocal) {
+          // Tentar carregar histórico da conversa
+          try {
+            const resp = await fetch(`${API_BASE}/api/conversa/${sessionIdLocal}`);
+            if (resp.ok) {
+              const data = await resp.json();
+              setSessionId(sessionIdLocal);
+              
+              // Carregar histórico se existir (filtrar respostas genéricas antigas)
+              if (data.mensagens && data.mensagens.length > 0) {
+                const historicoFormatado = data.mensagens
+                  .filter((msg) => {
+                    // Filtrar respostas genéricas antigas do bot
+                    if (msg.autor === "bot") {
+                      const textoLower = msg.texto.toLowerCase();
+                      const respostasGenericas = ["certo! anotei", "anotei sua resposta"];
+                      return !respostasGenericas.some(gen => textoLower.includes(gen));
+                    }
+                    return true;
+                  })
+                  .map((msg) => ({
+                    texto: msg.texto,
+                    autor: msg.autor === "user" ? "user" : "bot",
+                    html: msg.autor === "bot" && msg.texto.includes("<b>"),
+                  }));
+                
+                // Só carregar se houver mensagens válidas após filtro
+                if (historicoFormatado.length > 0) {
+                  setRespostas(historicoFormatado);
+                  return;
+                }
+              }
+            }
+          } catch (err) {
+            console.log("Conversa não encontrada, criando nova");
+          }
+        }
+        
+        // Criar nova conversa
+        const resp = await fetch(`${API_BASE}/api/conversa/nova`, {
+          method: "POST",
+        });
+        const data = await resp.json();
+        
+        if (data.session_id) {
+          setSessionId(data.session_id);
+          localStorage.setItem("chat_session_id", data.session_id);
+        }
+        
+        // Mensagem inicial
+        const mensagemInicial = {
+          texto:
+            "Olá, tudo bem? 👋\n\n" +
+            "Sou o assistente virtual da concessionária Toyota! 🚗\n\n" +
+            "Estou aqui para te ajudar a encontrar o veículo perfeito! Pode me contar o que você está buscando?\n\n" +
+            "Por exemplo:\n" +
+            "• Quero um carro econômico\n" +
+            "• Procuro um SUV 0km\n" +
+            "• Quero um modelo esportivo potente\n\n" +
+            "Vou te recomendar os melhores veículos disponíveis! 😉",
+          autor: "bot",
+        };
+        setRespostas([mensagemInicial]);
+      } catch (err) {
+        console.error("Erro ao inicializar conversa:", err);
+        // Mensagem inicial mesmo em caso de erro
+        const mensagemInicial = {
+          texto:
+            "Olá, tudo bem? 👋\n\n" +
+            "Sou o assistente virtual da concessionária Toyota! 🚗\n\n" +
+            "Estou aqui para te ajudar a encontrar o veículo perfeito!",
+          autor: "bot",
+        };
+        setRespostas([mensagemInicial]);
+      }
+    }
+    
+    inicializarConversa();
   }, []);
 
   useEffect(() => {
@@ -55,7 +127,8 @@ function Chat() {
   async function handleEnviar() {
     if (mensagem.trim() === "") return;
 
-    setRespostas((prev) => [...prev, { texto: mensagem, autor: "user" }]);
+    const mensagemUsuario = mensagem.trim();
+    setRespostas((prev) => [...prev, { texto: mensagemUsuario, autor: "user" }]);
     setMensagem("");
     setCarregando(true);
 
@@ -63,11 +136,33 @@ function Chat() {
       const resp = await fetch(`${API_BASE}/api/recomendacao`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ texto: mensagem }),
+        body: JSON.stringify({ 
+          texto: mensagemUsuario,
+          session_id: sessionId 
+        }),
       });
+      if (!resp.ok) {
+        throw new Error(`HTTP error! status: ${resp.status}`);
+      }
+      
       const data = await resp.json();
+      
+      // Debug: log da resposta
+      console.log("Resposta da API:", data);
 
-      if (data.recomendacao) {
+      // Atualizar session_id se retornado
+      if (data.session_id && data.session_id !== sessionId) {
+        setSessionId(data.session_id);
+        localStorage.setItem("chat_session_id", data.session_id);
+      }
+
+      if (data.error) {
+        // Se houver erro, mostrar mensagem de erro
+        setRespostas((prev) => [
+          ...prev,
+          { texto: `Desculpe, ocorreu um erro: ${data.error} 😕`, autor: "bot" },
+        ]);
+      } else if (data.recomendacao) {
         const textoHTML = data.recomendacao
           .replace(/\*\*(.*?)\*\*/g, "<b>$1</b>")
           .replace(/\n/g, "<br />");
@@ -92,9 +187,10 @@ function Chat() {
           { texto: respostaFormatada, autor: "bot" },
         ]);
       } else {
+        // Fallback melhorado - não usar resposta genérica
         setRespostas((prev) => [
           ...prev,
-          { texto: "Certo! Anotei sua resposta 👍", autor: "bot" },
+          { texto: "Desculpe, não consegui processar sua mensagem. Pode reformular? 😊", autor: "bot" },
         ]);
       }
     } catch (err) {
